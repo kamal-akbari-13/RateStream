@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: distributed-rate-limiter
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms                    # Connection timeout
+      lettuce:
+        pool:
+          max-active: 20                 # Max active connections in pool
+          max-idle: 10                   # Max idle connections
+          min-idle: 2                    # Min idle connections
+          max-wait: 1000ms               # Max wait for connection from pool
+
+# Rate Limiter Configuration
+rate-limiter:
+  max-tokens: 10                         # Max tokens in the bucket
+  refill-rate: 2                         # Tokens refilled per second
+  key-prefix: "rate_limit"              # Redis key prefix
+  ttl-seconds: 3600                      # TTL for inactive user keys (1 hour)
+
+# Logging
+logging:
+  level:
+    com.ratelimiter: DEBUG
+    org.springframework.data.redis: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%logger{36}] - %msg%n"
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: always
+
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
